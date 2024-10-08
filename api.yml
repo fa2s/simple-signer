@@ -1,0 +1,131 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  - url: https://example.com
+paths:
+  /sign:
+    post:
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                documentation:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Documentation"
+                attachments:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Attachment"
+                contents:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Content"
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        format: uuid
+        '422':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /attach:
+    post:
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  format: uuid
+                attachments:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Attachment"
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        format: uuid
+        '422':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Errors'
+components:
+  schemas:
+    Attachment:
+      $ref: '#/components/schemas/Base64'
+    Base64:
+      type: object
+      properties:
+        name:
+          type: string
+        data:
+          type: string
+          format: byte
+    Content:
+      oneOf:
+        - $ref: '#/components/schemas/Base64'
+        - $ref: '#/components/schemas/Link'
+    Error:
+      description: error description
+      type: string
+      example:
+        - is not valid
+        - too long
+    Errors:
+      type: object
+      additionalProperties:
+        description: field name
+        type: array
+        items:
+          $ref: '#/components/schemas/Error'
+    Documentation:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - cpf
+            - rg
+        value:
+          type: string
+    Link:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri

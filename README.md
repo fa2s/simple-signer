@@ -5,13 +5,14 @@
 ```html
 <html>
     <head>
-    <script type="text/javascript" src="simple-signer.js"></script>
+    <script type='text/javascript' src='simple-signer.js'></script>
     </head>
 
     <body>
         <div id='signer'>
         </div>
-        <script type="text/javascript">
+
+        <script type='text/javascript'>
             // Create signer component
             const signer = new SimpleSigner();
 

@@ -25,7 +25,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /attach/{key}:
+  /transactions/{key}/attachments:
     post:
       parameters:
         - $ref: '#/components/parameters/key'
@@ -38,7 +38,9 @@ paths:
                 attachments:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Attachment'
+                    oneOf:
+                      - $ref: '#/components/schemas/Base64'
+                      - $ref: '#/components/schemas/Reference'
       responses:
         200:
           description: OK
@@ -52,7 +54,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /finish/{key}/{foo}:
+  /transactions/{key}/finish:
     post:
       parameters:
         - $ref: '#/components/parameters/key'
@@ -69,7 +71,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-
 components:
   parameters:
     key:
@@ -80,10 +81,6 @@ components:
         format: uuid
       required: true
   schemas:
-    Attachment:
-      oneOf:
-        - $ref: '#/components/schemas/Base64'
-        - $ref: '#/components/schemas/Link'
     Base64:
       type: object
       properties:
@@ -92,23 +89,20 @@ components:
         data:
           type: string
           format: byte
-    Content:
-      oneOf:
-        - $ref: '#/components/schemas/Base64'
-        - $ref: '#/components/schemas/Link'
-    Error:
-      description: error description
-      type: string
-      example:
-        - is not valid
-        - too long
     Errors:
       type: object
       additionalProperties:
-        description: field name
+        description: Nome do campo
         type: array
         items:
-          $ref: '#/components/schemas/Error'
+          description: Descrição do erro
+          type: string
+      example:
+        name:
+          - é muito curto
+          - não é válido
+        contents:
+          - está vazio
     Document:
       type: object
       properties:
@@ -119,7 +113,7 @@ components:
             - rg
         value:
           type: string
-    Link:
+    Reference:
       type: object
       properties:
         name:
@@ -127,15 +121,7 @@ components:
         url:
           type: string
           format: uri
-    Transaction:
-      allOf:
-        - type: object
-          properties:
-            key:
-              type: string
-              format: uuid
-        - $ref: '#components/schemas/NewTransaction'
-    NewTransaction:
+    BaseTransaction:
       type: object
       properties:
         name:
@@ -145,16 +131,44 @@ components:
           items:
             $ref: '#/components/schemas/Document'
           minItems: 1
-        contents:
-          type: array
-          items:
-            $ref: '#/components/schemas/Content'
-          minItems: 1
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
       required:
         - name
         - documents
+    NewTransaction:
+      allOf:
+        - $ref: '#components/schemas/BaseTransaction'
+        - type: object
+          properties:
+            contents:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Base64'
+                  - $ref: '#/components/schemas/Reference'
+              minItems: 1
+            attachments:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Base64'
+                  - $ref: '#/components/schemas/Reference'
+              minItems: 1
+    Transaction:
+      allOf:
+        - $ref: '#components/schemas/BaseTransaction'
+        - type: object
+          properties:
+            key:
+              type: string
+              format: uuid
+            attachments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            contents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+      required:
+        - name
         - contents

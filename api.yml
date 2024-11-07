@@ -152,7 +152,8 @@ components:
                 oneOf:
                   - $ref: '#/components/schemas/Base64'
                   - $ref: '#/components/schemas/Reference'
-              minItems: 1
+      required:
+        - contents
     Transaction:
       allOf:
         - $ref: '#components/schemas/BaseTransaction'
@@ -161,14 +162,15 @@ components:
             key:
               type: string
               format: uuid
-            attachments:
-              type: array
-              items:
-                $ref: '#/components/schemas/Reference'
             contents:
               type: array
               items:
                 $ref: '#/components/schemas/Reference'
+            attachments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
       required:
-        - name
+        - key
         - contents
+        - attachments

@@ -5,44 +5,22 @@ info:
 servers:
   - url: https://example.com
 paths:
-  /sign:
+  /transactions:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                documentation:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Documentation'
-                attachments:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Attachment'
-                contents:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Content'
+              $ref: '#/components/schemas/NewTransaction'
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transaction:
-                    type: object
-                    properties:
-                      key:
-                        type: string
-                        format: uuid
-        '422':
-          description: OK
+                $ref: '#/components/schemas/Transaction'
+        422:
+          description: Failed
           content:
             application/json:
               schema:
@@ -50,12 +28,7 @@ paths:
   /attach/{key}:
     post:
       parameters:
-        - name: key
-          in: path
-          schema:
-            type: string
-            format: uuid
-          required: true
+        - $ref: '#/components/parameters/key'
       requestBody:
         content:
           application/json:
@@ -67,59 +40,50 @@ paths:
                   items:
                     $ref: '#/components/schemas/Attachment'
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transaction:
-                    type: object
-                    properties:
-                      key:
-                        type: string
-                        format: uuid
-        '422':
-          description: OK
+                $ref: '#/components/schemas/Transaction'
+        422:
+          description: Failed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /finish/{key}:
+  /finish/{key}/{foo}:
     post:
       parameters:
-        - name: key
-          in: path
-          schema:
-            type: string
-            format: uuid
-          required: true
+        - $ref: '#/components/parameters/key'
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transaction:
-                    type: object
-                    properties:
-                      key:
-                        type: string
-                        format: uuid
-        '422':
-          description: OK
+                $ref: '#/components/schemas/Transaction'
+        422:
+          description: Failed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
 
 components:
+  parameters:
+    key:
+      name: key
+      in: path
+      schema:
+        type: string
+        format: uuid
+      required: true
   schemas:
     Attachment:
-      $ref: '#/components/schemas/Base64'
+      oneOf:
+        - $ref: '#/components/schemas/Base64'
+        - $ref: '#/components/schemas/Link'
     Base64:
       type: object
       properties:
@@ -145,7 +109,7 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/Error'
-    Documentation:
+    Document:
       type: object
       properties:
         name:
@@ -163,3 +127,34 @@ components:
         url:
           type: string
           format: uri
+    Transaction:
+      allOf:
+        - type: object
+          properties:
+            key:
+              type: string
+              format: uuid
+        - $ref: '#components/schemas/NewTransaction'
+    NewTransaction:
+      type: object
+      properties:
+        name:
+          type: string
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+          minItems: 1
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Content'
+          minItems: 1
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+      required:
+        - name
+        - documents
+        - contents

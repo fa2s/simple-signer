@@ -1,4 +1,4 @@
-openapi: '3.0.3'
+openapi: 3.0.3
 info:
   title: API Title
   version: '1.0'
@@ -9,7 +9,7 @@ paths:
     post:
       requestBody:
         content:
-          'application/json':
+          application/json:
             schema:
               type: object
               properties:
@@ -18,20 +18,20 @@ paths:
                 documentation:
                   type: array
                   items:
-                    $ref: "#/components/schemas/Documentation"
+                    $ref: '#/components/schemas/Documentation'
                 attachments:
                   type: array
                   items:
-                    $ref: "#/components/schemas/Attachment"
+                    $ref: '#/components/schemas/Attachment'
                 contents:
                   type: array
                   items:
-                    $ref: "#/components/schemas/Content"
+                    $ref: '#/components/schemas/Content'
       responses:
         '200':
           description: OK
           content:
-            'application/json':
+            application/json:
               schema:
                 type: object
                 properties:
@@ -44,29 +44,33 @@ paths:
         '422':
           description: OK
           content:
-            'application/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /attach:
+  /attach/{key}:
     post:
+      parameters:
+        - name: key
+          in: path
+          schema:
+            type: string
+            format: uuid
+          required: true
       requestBody:
         content:
-          'application/json':
+          application/json:
             schema:
               type: object
               properties:
-                key:
-                  type: string
-                  format: uuid
                 attachments:
                   type: array
                   items:
-                    $ref: "#/components/schemas/Attachment"
+                    $ref: '#/components/schemas/Attachment'
       responses:
         '200':
           description: OK
           content:
-            'application/json':
+            application/json:
               schema:
                 type: object
                 properties:
@@ -79,9 +83,39 @@ paths:
         '422':
           description: OK
           content:
-            'application/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /finish/{key}:
+    post:
+      parameters:
+        - name: key
+          in: path
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        format: uuid
+        '422':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
 components:
   schemas:
     Attachment:

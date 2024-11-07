@@ -136,7 +136,7 @@ components:
         - documents
     NewTransaction:
       allOf:
-        - $ref: '#components/schemas/BaseTransaction'
+        - $ref: '#/components/schemas/BaseTransaction'
         - type: object
           properties:
             contents:
@@ -156,7 +156,7 @@ components:
         - contents
     Transaction:
       allOf:
-        - $ref: '#components/schemas/BaseTransaction'
+        - $ref: '#/components/schemas/BaseTransaction'
         - type: object
           properties:
             key:

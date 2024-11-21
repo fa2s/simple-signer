@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lorem Ipsum</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <script src="signer.min.js"></script>
+  </head>
+  <body>
+    <h1>Lorem ipsum</h1>
+	<p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus odio est, congue et leo mattis, convallis placerat nisl. Etiam ornare imperdiet ante, et consequat ante aliquam at. Aliquam dapibus lectus ex, nec finibus quam vestibulum eu. Curabitur tempor ac augue a tempus. Phasellus volutpat sodales magna vitae sollicitudin. Pellentesque convallis lorem eu nibh hendrerit ornare. Proin quis erat ac mauris elementum elementum. Etiam quis pretium lectus.
+    </p>
+    <p>
+    Sed nec dictum turpis, vitae faucibus libero. Morbi imperdiet urna enim, quis semper urna volutpat sit amet. Nulla congue fringilla purus non commodo. Pellentesque vitae leo eu quam imperdiet blandit blandit in lectus. Fusce nulla eros, condimentum in ultrices et, tincidunt in turpis. Integer maximus tempus pharetra. Nullam et tempus turpis, sed vulputate metus. Etiam odio ligula, iaculis non est vitae, dignissim condimentum ex. Fusce augue magna, sodales non metus ac, sagittis viverra arcu. Aliquam et urna a elit consequat laoreet. Donec mauris nulla, iaculis sit amet arcu vel, euismod interdum elit. Aenean mattis leo ac dignissim sodales. Mauris quis pulvinar eros. Proin dictum pretium enim. Nam interdum consectetur tellus mollis euismod.
+    </p>
+    <p>
+Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar.
+    </p>
+
+    <div id='signer' />
+
+    <script>
+      signer = new Signer();
+      signer.mode = 'staging';
+
+      signer.contents  = [
+        {
+          name: 'Termo de Uso',
+          url: 'http://example.com/tou.pdf',
+        },
+        {
+          name: 'Contrato de Prestação de Serviço',
+          url: 'http://example.com/contract.pdf',
+        },
+      ];
+
+      signer.then((response) => {
+        console.log('success');
+      });
+
+      signer.catch((response) => {
+        console.log('failed');
+      });
+
+      signer.finally(() => {
+        console.log('always');
+      });
+
+      signer.mount('signer');
+    </script>
+  </body>
+</html>

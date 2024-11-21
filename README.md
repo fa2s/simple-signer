@@ -16,8 +16,8 @@
             // Create signer component
             const signer = new Signer();
 
-            // Options: [ sandbox, production ]
-            signer.mode = 'production'
+            // Options: [ development, staging ]
+            signer.mode = 'staging'
 
             // Documents to be signed
             signer.contents  = [

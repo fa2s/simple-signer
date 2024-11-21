@@ -1,0 +1,11 @@
+meta {
+  name: Finish transaction
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{protocol}}://{{server}}/api/transactions/{{key}}/finish
+  body: none
+  auth: none
+}

@@ -1,0 +1,11 @@
+meta {
+  name: List transactions
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{ protocol }}://{{ domain }}/api/transactions
+  body: none
+  auth: none
+}

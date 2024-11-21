@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Simple Signer",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -14,16 +14,23 @@
 
         <script type='text/javascript'>
             // Create signer component
-            const signer = new SimpleSigner();
+            const signer = new impleSigner();
 
             // Options: [ sandbox, production ]
             signer.mode = 'production'
 
             // Documents to be signed
-            signer.contents = [
-                'http://example.com/terms-of-use.pdf',
-                'http://example.com/contract.pdf'
+            signer.contents  = [
+              {
+                name: 'Termo de Uso',
+                url: 'http://example.com/tou.pdf',
+              },
+              {
+                name: 'Contrato de Prestação de Serviço',
+                url: 'http://example.com/contract.pdf',
+              },
             ];
+
 
             // Callback when everything is ok. Lookd at Open API spec to see data object
             signer.then((data) => {
@@ -35,7 +42,12 @@
                 console.log('Failed');
             })
 
-            // Mount sign component at page. Pass element dom ID where the component is going to be mounted
+            // Callback for both sucess and failed. No object provided
+            signer.finally(() => {
+              console.log('Always');
+            });
+
+            // Mount sign component at page. Pass element query selector
             signer.mount('#signer');
         </script>
     </body>

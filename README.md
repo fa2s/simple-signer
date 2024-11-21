@@ -5,7 +5,7 @@
 ```html
 <html>
     <head>
-    <script type='text/javascript' src='signer.js'></script>
+    <script type='text/javascript' src='signer.min.js'></script>
     </head>
 
     <body>

@@ -5,7 +5,7 @@
 ```html
 <html>
     <head>
-    <script type='text/javascript' src='simple-signer.js'></script>
+    <script type='text/javascript' src='signer.js'></script>
     </head>
 
     <body>
@@ -14,7 +14,7 @@
 
         <script type='text/javascript'>
             // Create signer component
-            const signer = new impleSigner();
+            const signer = new Signer();
 
             // Options: [ sandbox, production ]
             signer.mode = 'production'

@@ -5,7 +5,7 @@ info:
 servers:
   - url: https://example.com
 paths:
-  /transactions:
+  /api/transactions:
     post:
       requestBody:
         content:
@@ -25,7 +25,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /transactions/{key}/attachments:
+  /api/transactions/{key}/attachments:
     post:
       parameters:
         - $ref: '#/components/parameters/key'
@@ -54,7 +54,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  /transactions/{key}/finish:
+  /api/transactions/{key}/finish:
     post:
       parameters:
         - $ref: '#/components/parameters/key'

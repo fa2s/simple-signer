@@ -1,0 +1,51 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{protocol}}://{{domain}}/api/envelopes
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "envelope": {
+      "signer": {
+        "name": "Daniel Libanori",
+        "documents": [
+          {
+            "name": "cpf",
+            "value": "301.663.808-81"
+          }
+        ]
+      },
+      "contents": [
+        {
+          "name": "Termo de Uso",
+          "url": "https://pdfobject.com/pdf/sample.pdf",
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "name": "Contrato de Prestação de Serviço",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "tags": [
+            "test"
+          ]
+        }
+      ]
+    }
+  }
+}
+
+vars:post-response {
+  envelope_key: res.body.envelope.key
+}

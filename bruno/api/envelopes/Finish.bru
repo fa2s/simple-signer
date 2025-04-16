@@ -1,0 +1,15 @@
+meta {
+  name: Finish
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{protocol}}://{{domain}}/api/envelopes/:envelope_key/finish
+  body: none
+  auth: none
+}
+
+params:path {
+  envelope_key: 
+}

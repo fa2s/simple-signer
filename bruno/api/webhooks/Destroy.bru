@@ -1,0 +1,19 @@
+meta {
+  name: Destroy
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{protocol}}://{{domain}}/api/webhooks/{{webhook_key}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "webhook": {
+      "url": "http://example.com/webhook"
+    }
+  }
+}

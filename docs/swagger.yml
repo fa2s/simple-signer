@@ -1,0 +1,296 @@
+openapi: 3.1.1
+info:
+  title: Simple Signer
+  version: '0.9'
+servers:
+  - url: https://staging.fa2s.com.br
+    description: Staging Server
+  - url: https://signer.fa2s.com.br
+    description: Production Server
+  - url: "{protocol}://{host}:{port}"
+    description: Any Server
+    variables:
+      host:
+        default: localhost
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      port:
+        default: 3000
+security:
+  - ApiKeyAuth: []
+paths:
+  /api/account:
+    get:
+      summary: Mostra conta autenticada
+      description: Útil para descobrir a quem o token de autenticação pertence.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account'
+      tags:
+        - account
+  /api/envelopes:
+    get:
+      summary: Lista envelopes
+      description: Retorna todos os envelopes da conta. **Não utilizar em production**
+      responses:
+        200:
+          description: Retorna um array de envelopes no índice `envelopes`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  envelopes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/envelope'
+      tags:
+        - envelopes
+  /api/envelopes/{key}:
+    get:
+      summary: Mostra envelope
+      description: Retorna dados de um envelope.
+      parameters:
+        - $ref: '#/components/parameters/key'
+      responses:
+        200:
+          description: Retorna um envelope no índice `envelope`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  envelope:
+                    $ref: '#/components/schemas/envelope'
+        404:
+          description: Envelope não encontrado na conta
+      tags:
+        - envelopes
+  /api/envelopes/{key}/finish:
+    post:
+      summary: Finaliza envelope
+      description: Após finalizado um envelope não poderá mais ser modificado. Seu log é gerado e os _webhooks_ executados. Após 90 dias o envelope será coletado.
+      parameters:
+        - $ref: '#/components/parameters/key'
+      responses:
+        202:
+          description: O envelope foi marcado para ser finalizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  envelope:
+                    $ref: '#/components/schemas/envelope'
+        404:
+          description: Envelope não encontrado na conta
+        422:
+          description: A finalização do envelope falhou. Consultar corpo da resposta para obter mais detalhes.
+      tags:
+        - envelopes
+  /api/webhooks:
+    get:
+      summary: Lista webhooks
+      description: Retorna todos os _webhooks_ da conta.
+      responses:
+        200:
+          description: Retorna um _array_ de _webhooks_ no índice `webhooks`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  webhooks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/webhook'
+      tags:
+        - webhooks
+    post:
+      summary: Cria webhook
+      description: Cria um webhook na conta. O webhook é disparado um `POST` toda vez que algum evento aconter em algum documento da conta.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/new-webhook'
+      responses:
+        201:
+          description: Webhook criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  webhook:
+                    $ref: '#/components/schemas/webhook'
+        422:
+          description: Criação de webhook falhou. Consultar corpo da resposta para obter mais detalhes.
+      tags:
+        - webhooks
+  /api/webhooks/{key}:
+    delete:
+      summary: Deleta webhook
+      description: Deleta um webhook. Chamadas agendadas para o webhook deixarão de serem executadas.
+      parameters:
+        - $ref: '#/components/parameters/key'
+      responses:
+        204:
+          description: Webhook deletado.
+        404:
+          description: Webhook não encontrado na conta.
+        422:
+          description: Deleção de webhook falhou. Consultar corpo da resposta para obter mais detalhes.
+      tags:
+        - webhooks
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+  parameters:
+    key:
+      name: key
+      in: path
+      schema:
+        type: string
+      required: true
+  schemas:
+    account:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          examples:
+            - 8d1146c6-75a0-445c-9a6d-12b3ad6d640e
+        name:
+          type: string
+          examples:
+            - ACME Inc.
+            - Example Org
+    envelope:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          examples:
+            - 494b9418-1cfd-4a7a-abb9-017efdd697d1
+        status:
+          type: string
+          enum:
+            - opened
+            - stalled
+            - finished
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/content'
+    content:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          examples:
+          - 0af61f2d-e3d7-4bc5-a07b-6220fcfd6a81
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        tag:
+          type: array
+          items:
+            $ref: '#/components/schemas/tag'
+        log:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/event'
+    tag:
+      type: array
+      items:
+        type: string
+    event:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          examples:
+            - 749edaf6-1ef6-4347-9882-94874c809df7
+        type:
+          type: string
+          enum:
+            - signature
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/signature'
+            - $ref: '#/components/schemas/finish'
+          discriminator:
+            propertyName: type
+    signature:
+      type: object
+      properties:
+        ip:
+          type: string
+        name:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/document'
+    finish:
+      type: object
+      properties:
+        ip:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+    document:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - cpf
+            - rg
+        value:
+          type: string
+    new-webhook:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          examples:
+            - http://example.com/callback
+      required:
+        - url
+    webhook:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            key:
+              type: string
+              format: uuid
+              examples:
+                - 18022867-68a1-40be-9dc6-03588d22e6e3
+        - $ref: '#/components/schemas/new-webhook'

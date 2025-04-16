@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lorem Ipsum</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer-stable.min.js"></script>
+  </head>
+  <body>
+    <h1>Lorem ipsum</h1>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus odio est, congue et leo mattis, convallis placerat nisl. Etiam ornare imperdiet ante, et consequat ante aliquam at. Aliquam dapibus lectus ex, nec finibus quam vestibulum eu. Curabitur tempor ac augue a tempus. Phasellus volutpat sodales magna vitae sollicitudin. Pellentesque convallis lorem eu nibh hendrerit ornare. Proin quis erat ac mauris elementum elementum. Etiam quis pretium lectus.
+    </p>
+    <p>
+    Sed nec dictum turpis, vitae faucibus libero. Morbi imperdiet urna enim, quis semper urna volutpat sit amet. Nulla congue fringilla purus non commodo. Pellentesque vitae leo eu quam imperdiet blandit blandit in lectus. Fusce nulla eros, condimentum in ultrices et, tincidunt in turpis. Integer maximus tempus pharetra. Nullam et tempus turpis, sed vulputate metus. Etiam odio ligula, iaculis non est vitae, dignissim condimentum ex. Fusce augue magna, sodales non metus ac, sagittis viverra arcu. Aliquam et urna a elit consequat laoreet. Donec mauris nulla, iaculis sit amet arcu vel, euismod interdum elit. Aenean mattis leo ac dignissim sodales. Mauris quis pulvinar eros. Proin dictum pretium enim. Nam interdum consectetur tellus mollis euismod.
+    </p>
+    <p>
+Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
+    </p>
+
+    <div id='signer'></div>
+    <input id='next' type='button' value='Eu concordo' disabled />
+
+    <script>
+      const params = new URLSearchParams(document.location.search)
+      let apiKey = params.get('apiKey');
+
+      if (!apiKey) {
+        apiKey = prompt('Informe sua chave de API');
+        document.location.search = `apiKey=${apiKey}`
+      }
+
+      const next = document.querySelector('#next')
+
+      // Starts here
+      const signer = new Signer(apiKey);
+
+      // Options: development, staging, production. Default: production
+      signer.mode = 'staging';
+
+      // Options: agree, accept, read_and_accept. Default: agree
+      signer.text = 'agree'
+
+      // Set signer data. Right now it only accepts name and CPF
+      signer.set = {
+        name:  'Daniel Gaboardi Libanori',
+        documents: [
+          {
+            name: 'cpf',
+            value: '301.663.808-81'
+          },
+        ]
+      };
+
+      // Set documents to be signed. It needs an array of:
+      // name: string [required]
+      // url: where to download file [required]
+      // tag: array of strings to filter later [optional]
+      signer.contents  = [
+        {
+          name: 'LGPD',
+          url: 'https://pdfobject.com/pdf/sample.pdf',
+          tags: [ 'lgpd', '2025' ],
+        },
+        {
+          name: 'Termo de Uso',
+          url: 'https://www.buds.com.ua/images/Lorem_ipsum.pdf',
+          tags: [ 'tou', '2025' ],
+        },
+        {
+          name: 'Contrato de Prestação de Serviço',
+          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          tags: [ 'contract', '2025' ],
+        },
+      ];
+
+      // Where to mount. Expects a CSS selector
+      signer.mount('#signer');
+
+      // Function to be called when user click on agree checkbox
+      signer.toggle = (agreed) => {
+        next.disabled = !agreed;
+      }
+
+      next.addEventListener('click', (ev) => {
+        ev.preventDefault();
+
+        next.disabled = true
+
+        // Function to be called when you want to send signature
+        signer.agree()
+          .then((response) => {
+            console.log('success');
+
+            // Data from signer server to be saved
+            response.json().then((data) => console.log(data));
+          })
+          .catch((response) => {
+
+            // When something goes wrong
+            console.log('failed');
+          })
+          .finally(() => {
+
+            // Called every time
+            console.log('always');
+            next.disabled = false;
+          });
+      })
+    </script>
+  </body>
+</html>

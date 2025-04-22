@@ -17,36 +17,50 @@
 Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
     </p>
 
-    <div id='signer'></div>
-    <input id='next' type='button' value='Eu concordo' disabled />
+    <div id="signer"></div>
+    <input id="next" type="button" value="Eu concordo" disabled />
+
+    <p id="warning" style="text-align: center; background: yellow; display: none;">
+      O componente de assinatura não parece devidamente configurado.
+    </p>
+
+    <p>
+      Clique <a href="./config.html">aqui</a> para ser redirecionado ao assistente de configuração.
+    </p>
 
     <script>
-      const params = new URLSearchParams(document.location.search)
-      let apiKey = params.get('apiKey');
+      const params = new URLSearchParams(document.location.search);
+      const apiKey = params.get("apiKey");
+      const mode = params.get("mode");
+      const endpoint = params.get("endpoint");
 
       if (!apiKey) {
-        apiKey = prompt('Informe sua chave de API');
-        document.location.search = `apiKey=${apiKey}`
+        const warning = document.querySelector("#warning");
+        warning.style.display = "block";
       }
 
-      const next = document.querySelector('#next')
-
-      // Starts here
+      // Simple Signer config starts here
       const signer = new Signer(apiKey);
 
       // Options: development, staging, production. Default: production
-      signer.mode = 'staging';
+      if (mode) {
+        signer.mode = mode;
+      }
+
+      if (endpoint) {
+        signer.endpoint = endpoint;
+      }
 
       // Options: agree, accept, read_and_accept. Default: agree
-      signer.text = 'agree'
+      signer.text = "agree";
 
       // Set signer data. Right now it only accepts name and CPF
       signer.set = {
-        name:  'Daniel Gaboardi Libanori',
+        name:  "Daniel Gaboardi Libanori",
         documents: [
           {
-            name: 'cpf',
-            value: '301.663.808-81'
+            name: "cpf",
+            value: "301.663.808-81"
           },
         ]
       };
@@ -57,39 +71,40 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       // tag: array of strings to filter later [optional]
       signer.contents  = [
         {
-          name: 'LGPD',
-          url: 'https://pdfobject.com/pdf/sample.pdf',
-          tags: [ 'lgpd', '2025' ],
+          name: "LGPD",
+          url: "https://pdfobject.com/pdf/sample.pdf",
+          tags: [ "lgpd", "2025" ],
         },
         {
-          name: 'Termo de Uso',
-          url: 'https://www.buds.com.ua/images/Lorem_ipsum.pdf',
-          tags: [ 'tou', '2025' ],
+          name: "Termo de Uso",
+          url: "https://www.buds.com.ua/images/Lorem_ipsum.pdf",
+          tags: [ "tou", "2025" ],
         },
         {
-          name: 'Contrato de Prestação de Serviço',
-          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          tags: [ 'contract', '2025' ],
+          name: "Contrato de Prestação de Serviço",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          tags: [ "contract", "2025" ],
         },
       ];
 
       // Where to mount. Expects a CSS selector
-      signer.mount('#signer');
+      signer.mount("#signer");
 
+      const next = document.querySelector("#next");
       // Function to be called when user click on agree checkbox
       signer.toggle = (agreed) => {
         next.disabled = !agreed;
       }
 
-      next.addEventListener('click', (ev) => {
+      next.addEventListener("click", (ev) => {
         ev.preventDefault();
 
-        next.disabled = true
+        next.disabled = true;
 
         // Function to be called when you want to send signature
         signer.agree()
           .then((response) => {
-            console.log('success');
+            console.log("success");
 
             // Data from signer server to be saved
             response.json().then((data) => console.log(data));
@@ -97,15 +112,15 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
           .catch((response) => {
 
             // When something goes wrong
-            console.log('failed');
+            console.log("failed");
           })
           .finally(() => {
 
             // Called every time
-            console.log('always');
+            console.log("always");
             next.disabled = false;
           });
-      })
+      });
     </script>
   </body>
 </html>

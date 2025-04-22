@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Config</title>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <form>
+      <label>
+        API Key*:
+        <input id="apiKey" type="text" name="apiKey" />
+      </label>
+      <br />
+
+      <label>
+        Mode
+        <select id="mode">
+          <option value="" selected>Default (Production)</option>
+          <option value="production">Production</option>
+          <option value="staging">Staging</option>
+          <option value="development">Development</option>
+        </select>
+      </label>
+      <br />
+
+      <label>
+        Endpoint:
+        <input id="endpoint" type="text" name="endpoint" disabled/>
+      </label>
+      <br />
+
+      <input type="submit" value="Load" disabled />
+    </form>
+
+    <script>
+      const apiKey = document.querySelector("#apiKey");
+      apiKey.addEventListener("input", (ev) => {
+        const submit = document.querySelector("form input[type=submit]");
+        submit.disabled = ev.currentTarget.value == "";
+      });
+
+      const mode = document.querySelector("#mode");
+      mode.addEventListener("change", (ev) => {
+        const endpoint = document.querySelector("#endpoint")
+        const mode = ev.target.value;
+
+        if (ev.target.value == "development") {
+          endpoint.disabled = false;
+        } else {
+          endpoint.disabled = true;
+        }
+      });
+
+      const config = document.querySelector("form");
+      config.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+
+        const params = new URLSearchParams;
+        ["apiKey", "mode", "endpoint"].forEach((id) => {
+          const value = document.querySelector(`#${id}`).value;
+          if (value) params.append(id, value);
+        });
+
+        const url = new URL("simple.html", document.location);
+        url.search = params;
+
+        document.location.assign(url);
+      });
+    </script>
+  </body>
+</html>

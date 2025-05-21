@@ -3,7 +3,7 @@
   <head>
     <title>Lorem Ipsum</title>
     <meta charset="UTF-8">
-    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer.dev.js"></script>
+    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/multisigner.dev.js"></script>
   </head>
   <body>
     <h1>Lorem ipsum</h1>
@@ -40,7 +40,7 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       }
 
       // Simple Signer config starts here
-      const signer = new Signer(apiKey);
+      const signer = new Multisigner(apiKey);
 
       // Options: development, staging, production. Default: production
       if (mode) {
@@ -52,38 +52,30 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       }
 
       // Options: agree, accept, read_and_accept. Default: agree
-      signer.text = "agree";
+      signer.text = "accept";
 
       // Set signer data. Right now it only accepts name and CPF
       signer.set = {
-        name:  "Daniel Gaboardi Libanori",
+        name:  "William Shakespeare",
         documents: [
           {
             name: "cpf",
-            value: "301.663.808-81"
+            value: "875.019.050-45"
           },
         ],
       };
 
       // Set documents to be signed. It needs an array of:
       // name: string [required]
-      // url: where to download file [required]
-      // tag: array of strings to filter later [optional]
-      signer.contents  = [
+      // key: content key at simple simples [required]
+      signer.contents = [
         {
-          name: "LGPD",
-          url: "https://pdfobject.com/pdf/sample.pdf",
-          tags: [ "lgpd", "2025" ],
+          name: "Termo de Uso Nº 001",
+          key: "6992da21-87cd-40b0-a0e7-77b999169ace",
         },
         {
-          name: "Termo de Uso",
-          url: "https://www.buds.com.ua/images/Lorem_ipsum.pdf",
-          tags: [ "tou", "2025" ],
-        },
-        {
-          name: "Contrato de Prestação de Serviço",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-          tags: [ "contract", "2025" ],
+          name: "Contrato de Prestação de Serviço Nº 001",
+          key: "dd1954bb-f385-4ab9-8423-cf67f8a5f71c",
         },
       ];
 
@@ -104,10 +96,9 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
         // Function to be called when you want to send signature
         signer.agree()
           .then((response) => {
+            console.log("success");
             // Data from signer server to be saved
-            response.json().then((data) => {
-              alert(`Chave do envelope gerado:  ${data.envelope.key}`);
-            });
+            response.json().then((data) => console.log(data));
           })
           .catch((response) => {
             // When something goes wrong
@@ -116,6 +107,7 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
           .finally(() => {
             // Called every time
             console.log("always");
+            next.disabled = false;
 
             document.querySelector("#signer").remove();
             next.remove();

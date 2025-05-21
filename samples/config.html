@@ -24,30 +24,32 @@
       <br />
 
       <label>
-        Endpoint:
-        <input id="endpoint" type="text" name="endpoint" disabled/>
+        Base:
+        <input id="base" type="text" name="base" disabled/>
       </label>
       <br />
 
-      <input type="submit" value="Load" disabled />
+      <input type="submit" value="Simple" disabled />
+      <input type="submit" value="Multi" disabled />
     </form>
 
     <script>
       const apiKey = document.querySelector("#apiKey");
       apiKey.addEventListener("input", (ev) => {
-        const submit = document.querySelector("form input[type=submit]");
-        submit.disabled = ev.currentTarget.value == "";
+        for (const submit of document.querySelectorAll("form input[type=submit]")) {
+          submit.disabled = ev.currentTarget.value == "";
+        }
       });
 
       const mode = document.querySelector("#mode");
       mode.addEventListener("change", (ev) => {
-        const endpoint = document.querySelector("#endpoint")
+        const base = document.querySelector("#base")
         const mode = ev.target.value;
 
         if (ev.target.value == "development") {
-          endpoint.disabled = false;
+          base.disabled = false;
         } else {
-          endpoint.disabled = true;
+          base.disabled = true;
         }
       });
 
@@ -56,12 +58,18 @@
         ev.preventDefault();
 
         const params = new URLSearchParams;
-        ["apiKey", "mode", "endpoint"].forEach((id) => {
+        ["apiKey", "mode", "base"].forEach((id) => {
           const value = document.querySelector(`#${id}`).value;
           if (value) params.append(id, value);
         });
 
-        const url = new URL("simple.html", document.location);
+        let page;
+        if (ev.submitter.value == "Simple")
+          page = "simple.html"
+        else
+          page = "multi.html";
+
+        const url = new URL(page, document.location);
         url.search = params;
 
         document.location.assign(url);

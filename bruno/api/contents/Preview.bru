@@ -1,0 +1,15 @@
+meta {
+  name: Preview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{protocol}}://{{domain}}/api/contents/:content_key/preview
+  body: none
+  auth: none
+}
+
+params:path {
+  content_key: 
+}

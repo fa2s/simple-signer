@@ -1,0 +1,67 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{protocol}}://{{domain}}/api/signatures
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "signature": {
+      "signer": {
+        "name": "Daniel Libanori",
+        "documents": [
+          {
+            "name": "cpf",
+            "value": "301.663.808-81"
+          }
+        ]
+      },
+      "contents": [
+        {
+          "name": "Termo de Uso",
+          "key": "e83b8dfd-f243-43c5-b54c-318a28bfb994"
+        },
+        {
+          "name": "Contrato de Prestação de Serviço",
+          "key": "52f0b15b-f987-421d-ab80-51d03cd4fb78"
+        }
+      ]
+    }
+  }
+}
+
+body:text {
+  {
+    "envelope": {
+      "signer": {
+        "name": "Daniel Libanori",
+        "documents": [
+          {
+            "name": "cpf",
+            "value": "301.663.808-81"
+          }
+        ]
+      },
+      "contents": [
+        {
+          "name": "Termo de Uso",
+          "key": "e83b8dfd-f243-43c5-b54c-318a28bfb994"
+        },
+        {
+          "name": "Contrato de Prestação de Serviço",
+          "key": "52f0b15b-f987-421d-ab80-51d03cd4fb78"
+        }
+      ]
+    }
+  }
+}

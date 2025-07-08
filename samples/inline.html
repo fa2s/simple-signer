@@ -3,7 +3,10 @@
   <head>
     <title>Lorem Ipsum</title>
     <meta charset="UTF-8">
-    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer.dev.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <!-- <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer.dev.js"></script> -->
+    <script src="../../simple-signer-client/src/signer.js"></script>
   </head>
   <body>
     <h1>Lorem ipsum</h1>
@@ -16,6 +19,111 @@
     <p>
 Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
     </p>
+
+    <div id="contract" style="display: none;">
+# CONTRATO DE PRESTAÇÃO DE SERVIÇOS
+
+**Entre as partes abaixo identificadas:**
+
+**Contratante:**  
+Bom dia {{name}}  
+
+{{#each frutas}}
+  {{self}}
+{{/each}}
+Nome: {{input "NOME" placeholder="Insira seu NOME"}}  
+CPF: {{input "CNPJ" placeholder="Insira seu CNPJ"}}  
+Endereço: Rua Exemplo, 123 - São Paulo/SP  
+Email: joao@email.com  
+
+**Contratado:**  
+Nome: Maria Oliveira  
+CPF: 987.654.321-00  
+Endereço: Av. Demonstração, 456 - Rio de Janeiro/RJ  
+Email: maria@email.com  
+
+---
+
+## CLÁUSULA 1 - OBJETO
+
+O presente contrato tem como objeto a prestação dos seguintes serviços pelo CONTRATADO:
+
+- Desenvolvimento de site institucional;
+- Hospedagem e manutenção por 6 meses.
+
+{{checkbox "Eu concordo com a cláusula acima"}}
+
+
+---
+
+## CLÁUSULA 2 - PRAZO
+
+O prazo para a entrega do serviço será de 30 (trinta) dias corridos, contados a partir da assinatura deste contrato.
+
+{{#select "amount"}}
+  {{#option "vista"}}Opção 1{{/option}}
+  {{#option "2x"}}Opção 2{{/option}}
+  {{#option "3x"}}Opção 3{{/option}}
+{{/select}}
+
+{{#radio "gender:male"}}
+Pagamento à vista
+{{/radio}} 
+
+
+{{#radio "gender:female"}}
+50% (R$ 1.500,00) no início do projeto; - 50% (R$ 1.500,00) na entrega final do site.
+{{/radio}} 
+
+---
+
+## CLÁUSULA 3 - VALOR E FORMA DE PAGAMENTO
+
+O valor total do serviço será de **R$ 3.000,00 (três mil reais)**, pagos da seguinte forma:
+
+- 50% (R$ 1.500,00) no início do projeto;
+- 50% (R$ 1.500,00) na entrega final do site.
+
+---
+
+## CLÁUSULA 4 - OBRIGAÇÕES DAS PARTES
+
+**Do CONTRATADO:**
+
+- Executar os serviços com qualidade e dentro do prazo;
+- Fornecer suporte técnico durante o período de manutenção.
+
+**Do CONTRATANTE:**
+
+- Fornecer as informações e materiais necessários para a execução do projeto;
+- Efetuar os pagamentos conforme acordado.
+
+---
+
+## CLÁUSULA 5 - RESCISÃO
+
+O contrato poderá ser rescindido por qualquer das partes, mediante notificação por escrito com antecedência mínima de 7 dias, sem prejuízo das obrigações já assumidas.
+
+---
+
+## CLÁUSULA 6 - FORO
+
+Para dirimir quaisquer dúvidas oriundas deste contrato, as partes elegem o foro da comarca de São Paulo/SP.
+
+---
+
+**E por estarem de acordo, assinam o presente contrato:**
+
+São Paulo, ___ de ____________ de 20__.
+
+**Contratante:**  
+\_____________________________  
+João da Silva
+
+**Contratado:**  
+\_____________________________  
+Maria Oliveira
+    </div>
 
     <div id="signer"></div>
     <input id="next" type="button" value="Eu concordo" disabled />
@@ -63,7 +171,23 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
             value: "301.663.808-81"
           },
         ],
-        tags: [ "customer", "plan-1" ],
+      };
+
+      signer.inline = document.querySelector("#contract").textContent;
+      signer.react = (ev) => {
+        const data = ev.currentTarget.querySelectorAll("input, select")
+
+        for (input of data) {
+          switch (input.type) {
+            case "radio":
+              if (input.checked)
+                console.log(`Gender: ${input.value}`);
+              break;
+            default:
+              console.log(`${input.name}: ${input.value}`);
+              break;
+          }
+        }
       };
 
       // Set documents to be signed. It needs an array of:

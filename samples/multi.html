@@ -17,7 +17,11 @@
 Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
     </p>
 
-    <div id="signer"></div>
+    <div id="signer">
+      <style>
+        ul { background: lightgray }
+      </style>
+    </div>
     <input id="next" type="button" value="Eu concordo" disabled />
 
     <p id="warning" style="text-align: center; background: yellow; display: none;">
@@ -63,6 +67,7 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
             value: "300.444.999-01"
           },
         ],
+        tags: [ "saler", "2025" ],
       };
 
       // Set documents to be signed. It needs an array of:
@@ -70,15 +75,37 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       // key: content key at simple simples [required]
       signer.contents = [
         {
-          name: "Contrato do Daniel",
-          key: "efd6fb9e-9d6a-470c-b32e-6ba71aa64ae9",
+          name: "Contrato de Prestação de Serviço Nº 001",
+          key: "25783eb5-0538-414b-87b4-684afc5f3fd9",
         },
         {
-          name: "Termos de uso do Daniel",
-          key: "24677a2f-0799-4113-bb30-9e86c6d62db3",
+          name: "Termo de Uso Nº 001",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+        },
+        {
+          name: "Termo de Uso Nº 002",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+        },
+        {
+          name: "Termo de Uso Nº 003",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+        },
+        {
+          name: "Termo de Uso Nº 004",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+        },
+        {
+          name: "Termo de Uso Nº 005",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+        },
+        {
+          name: "Termo de Uso Nº 006",
+          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+>>>>>>> main
         },
       ];
 
+      signer.format = "list";
       // Where to mount. Expects a CSS selector
       signer.mount("#signer");
 

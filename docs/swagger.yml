@@ -1,11 +1,9 @@
 openapi: 3.1.1
 info:
-  title: Simple Signer
+  title: Click.Agree
   version: '0.9'
 servers:
-  - url: https://staging.fa2s.com.br
-    description: Staging Server
-  - url: https://signer.fa2s.com.br
+  - url: https://agree.clicksign.com
     description: Production Server
   - url: "{protocol}://{host}:{port}"
     description: Any Server

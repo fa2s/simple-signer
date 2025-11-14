@@ -23,6 +23,7 @@
     #contents = [];
     #signer = null;
     #text = "agree";
+    #checked = false;
     toggle = () => {
     };
     set text(name) {
@@ -57,6 +58,12 @@
     }
     set base(value) {
       this.#base = value;
+    }
+    get checked() {
+      return this.#checked;
+    }
+    set checked(val) {
+      this.#checked = val;
     }
     mount(query) {
       if (!this.#contents.length)
@@ -102,6 +109,7 @@
       const label = document.createElement("label");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
+      checkbox.checked = this.#checked;
       checkbox.addEventListener("change", (ev) => {
         this.#agreed = ev.target.checked;
         this.toggle(ev.target.checked);
@@ -142,6 +150,7 @@
       const label = document.createElement("label");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
+      checkbox.checked = this.#checked;
       checkbox.addEventListener("change", (ev) => {
         this.#agreed = ev.target.checked;
         this.toggle(ev.target.checked);
@@ -151,36 +160,6 @@
       label.append(agree);
       div.append(ul, label);
       return div;
-    };
-    #mountTable = () => {
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const tbody = document.createElement("tbody");
-      (() => {
-        const tr = document.createElement("tr");
-        const col_1 = document.createElement("th");
-        const col_2 = document.createElement("th");
-        col_2.innerText = "Nome";
-        tr.append(col_1, col_2);
-        thead.append(tr);
-      })();
-      this.#contents.forEach(({ name, key }) => {
-        const tr = document.createElement("tr");
-        const col_1 = document.createElement("td");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = "name";
-        checkbox.checked = true;
-        checkbox.value = key;
-        col_1.append(checkbox);
-        const col_2 = document.createElement("td");
-        const link = this.buildEntry(name, key);
-        col_2.append(link);
-        tr.append(col_1, col_2);
-        tbody.append(tr);
-      });
-      table.append(thead, tbody);
-      return table;
     };
     buildLink() {
       throw "Need to be implemented";

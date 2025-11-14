@@ -6,7 +6,9 @@
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
     <!-- <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer.dev.js"></script> -->
-    <script src="../../simple-signer-client/src/signer.js"></script>
+
+    <script src="../../simple-signer-client/dist/signer.js"></script>
+    <script src="../../simple-signer-client/dist/plugins/markdown_contract.js"></script>
   </head>
   <body>
     <h1>Lorem ipsum</h1>
@@ -172,6 +174,10 @@ Maria Oliveira
           },
         ],
       };
+
+      signer.addPlugin(new MarkdownContract({
+          inline: document.querySelector("#contract").textContent
+      }));
 
       signer.inline = document.querySelector("#contract").textContent;
       signer.react = (ev) => {

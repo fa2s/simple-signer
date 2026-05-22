@@ -1,97 +1,230 @@
 (() => {
-  // src/base.js
-  var base_default = class {
-    constructor(api_key) {
-      if (!api_key)
-        throw "Need an API KEY";
-      this.api_key = api_key;
-      this.format = "auto";
+  // src/events.js
+  var MountEvent = class extends Event {
+    constructor() {
+      super("mount", { bubbles: true });
     }
-    static modes = ["development", "staging", "production"];
-    static bases = {
-      staging: "https://staging.fa2s.com.br",
-      production: "https://signer.fa2s.com.br"
-    };
-    static texts = {
-      read_and_accept: "Li e aceito ",
-      accept: "Eu aceito ",
-      agree: "Concordo com "
-    };
-    #agreed = false;
-    #mode = "production";
-    #base = null;
-    #contents = [];
-    #signer = null;
-    #text = "agree";
-    #checked = false;
-    toggle = () => {
-    };
-    set text(name) {
-      this.#text = name;
+  };
+  var ChangeEvent = class extends Event {
+    constructor(source) {
+      super("change", { bubbles: true });
+      this.source = source;
     }
-    set set(val) {
-      this.#signer = val;
+  };
+  var UnmountEvent = class extends Event {
+    constructor() {
+      super("unmount", { bubbles: true });
     }
-    get url() {
+  };
+
+  // src/wrapper.js
+  var Wrapper = class {
+    #node;
+    #styles = [];
+    #mountables = [];
+    constructor(container) {
+      this.#node = document.createElement("div");
+      container.append(this.#node);
+      this.#copyCSS(container);
+    }
+    get ready() {
+      return this.#mountables.every((mountable) => mountable.ready);
+    }
+    push(mountable) {
+      this.#mountables.push(mountable);
+    }
+    mount() {
+      const root = this.#node.attachShadow({ mode: "closed" });
+      this.#dumpCSS(root);
+      this.#mountables.forEach((mountable) => mountable.mount(root));
+      const ev = new MountEvent();
+      this.#node.parentElement.dispatchEvent(ev);
+    }
+    unmount() {
+      this.#mountables.forEach((mountable) => mountable.unmount());
+      const ev = new UnmountEvent();
+      this.#node.parentElement.dispatchEvent(ev);
+      this.#node.remove();
+      this.#node = null;
+    }
+    #copyCSS(source) {
+      const templates = source.querySelectorAll("template");
+      templates.forEach((template) => {
+        const content = template.content;
+        content.querySelectorAll("style").forEach((original) => {
+          this.#styles.push(original.innerHTML);
+        });
+      });
+    }
+    #dumpCSS(target) {
+      this.#styles.forEach((style) => {
+        const sheet = document.createElement("style");
+        sheet.innerHTML = style;
+        target.append(sheet);
+      });
+    }
+  };
+
+  // src/renderers.js
+  var Base = class {
+    text = "agree";
+    checked = false;
+    #contents;
+    constructor(contents) {
+      this.#contents = contents;
+    }
+    get ready() {
+      return this.checked;
+    }
+    mount(root) {
       throw "Need to be implemented";
     }
-    get mode() {
-      return this.#mode;
+    unmount() {
     }
-    set mode(val) {
-      if (this.constructor.modes.includes(val))
-        this.#mode = val;
-      else
-        throw "Unknown mode";
-    }
-    get contents() {
-      return this.#contents;
-    }
-    set contents(urls) {
-      if (Array.isArray(urls))
-        this.#contents = urls;
-      else
-        throw "Contents muts be an array";
-    }
-    get base() {
-      return this.#base ?? this.constructor.bases[this.#mode];
-    }
-    set base(value) {
-      this.#base = value;
-    }
-    get checked() {
-      return this.#checked;
-    }
-    set checked(val) {
-      this.#checked = val;
-    }
-    mount(query) {
-      if (!this.#contents.length)
-        throw "Contents cannot be empty";
-      const container = document.querySelector(query);
-      this.root = container.attachShadow({ mode: "closed" });
-      let fn;
-      switch (this.format) {
-        case "line":
-          fn = this.#mountLine;
-          break;
-        case "list":
-          fn = this.#mountList;
-          break;
-        case "auto":
-          fn = this.#contents.length > 5 ? this.#mountList : this.#mountLine;
-      }
-      const widget = fn();
-      container.querySelectorAll("style").forEach((style) => {
-        const sheet = new CSSStyleSheet();
-        sheet.replaceSync(style.innerHTML);
-        this.root.adoptedStyleSheets.push(sheet);
+    createCheckbox(wrapper) {
+      const checkbox = document.createElement("input");
+      checkbox.name = "agree";
+      checkbox.type = "checkbox";
+      checkbox.checked = this.checked;
+      const that = this;
+      checkbox.addEventListener("change", (ev) => {
+        that.checked = ev.target.checked;
+        wrapper.parentElement.dispatchEvent(
+          new ChangeEvent(ev.target)
+        );
       });
-      this.root.append(widget);
+      return checkbox;
     }
-    agree() {
-      if (!this.#agreed)
-        throw "Trying to force agreement";
+    createLinks() {
+      return this.#contents.map(({ name, href }) => {
+        const link = document.createElement("a");
+        link.text = name;
+        link.href = href;
+        link.target = "_blank";
+        return link;
+      });
+    }
+  };
+  var LineRenderer = class extends Base {
+    static texts = {
+      agree: "Concordo com ",
+      accept: "Eu aceito ",
+      read_and_accept: "Li e aceito "
+    };
+    mount(root) {
+      const label = document.createElement("label");
+      const checkbox = this.createCheckbox(root.host);
+      const agree = document.createTextNode(this.constructor.texts[this.text]);
+      const line = this.createLine();
+      label.append(checkbox);
+      label.append(agree);
+      label.append(...line);
+      root.append(label);
+    }
+    // Warning: I couldn't find easier way to do this. It is not an usual code
+    // but it works.
+    //
+    // Build strings like: foo, bar, gaz and onk
+    // There is no missing `break` here! We need to process all cases and
+    // default must be the first one
+    // Suppose [1, 2, ..., n - 2, n - 1, n]
+    createLine() {
+      const line = [];
+      const links = this.createLinks();
+      switch (links.length) {
+        default:
+          links.slice(0, -2).forEach((link) => {
+            const connector = document.createTextNode(", ");
+            line.push(link);
+            line.push(connector);
+          });
+        case 2:
+          links.slice(-2, -1).forEach((link) => {
+            const connector = document.createTextNode(" e ");
+            line.push(link);
+            line.push(connector);
+          });
+        case 1:
+          links.slice(-1).forEach((link) => {
+            line.push(link);
+          });
+      }
+      return line;
+    }
+  };
+  var ListRenderer = class extends Base {
+    static texts = {
+      agree: "Eu concordo com os documentos acima ",
+      accept: "Eu aceito os documentos acima ",
+      read_and_accept: "Li e aceito os documentos acima "
+    };
+    mount(root) {
+      const div = document.createElement("div");
+      const ul = document.createElement("ul");
+      const links = this.createLinks();
+      links.forEach((link) => {
+        const li = document.createElement("li");
+        li.append(link);
+        ul.append(li);
+      });
+      const label = document.createElement("label");
+      const checkbox = this.createCheckbox(root.host);
+      const agree = document.createTextNode(this.constructor.texts[this.text]);
+      label.append(checkbox);
+      label.append(agree);
+      div.append(ul, label);
+      root.append(div);
+    }
+  };
+  var AutoRenderer = class {
+    text = "agree";
+    checked = false;
+    #contents;
+    #renderer;
+    constructor(contents) {
+      this.#contents = contents;
+    }
+    get ready() {
+      return this.#renderer.ready;
+    }
+    mount(root) {
+      let Factory;
+      if (this.#contents.length > 5) {
+        Factory = ListRenderer;
+      } else {
+        Factory = LineRenderer;
+      }
+      const renderer = new Factory(this.#contents);
+      renderer.text = this.text;
+      renderer.checked = this.checked;
+      this.#renderer = renderer;
+      this.#renderer.mount(root);
+    }
+    unmount() {
+      this.#renderer.unmount();
+    }
+  };
+  var renderers_default = {
+    auto: AutoRenderer,
+    line: LineRenderer,
+    list: ListRenderer
+  };
+
+  // src/backends.js
+  var GenericBackend = class {
+    contents = [];
+    constructor({ base, api_key, signer }) {
+      this.base = base;
+      this.api_key = api_key;
+      this.signer = signer;
+    }
+    get endpoint() {
+      throw "Need to be implemented";
+    }
+    buildBody() {
+      throw "Need to be implemented";
+    }
+    async sign() {
       const options = {
         method: "POST",
         headers: {
@@ -99,98 +232,127 @@
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: this.buildPayload(this.#signer, this.#contents)
+        body: this.buildBody()
       };
-      return fetch(this.url, options).then(
-        (resp) => Promise[resp.ok ? "resolve" : "reject"](resp)
-      );
+      const url = new URL(this.endpoint, this.base);
+      const response = await fetch(url, options);
+      if (!response.ok)
+        throw new Error("Failed to fetch", { cause: response });
+      return response;
     }
-    #mountLine = () => {
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = this.#checked;
-      checkbox.addEventListener("change", (ev) => {
-        this.#agreed = ev.target.checked;
-        this.toggle(ev.target.checked);
+  };
+  var Document = class {
+    constructor(name, url, tags) {
+      this.name = name;
+      this.url = url;
+      this.tags = tags;
+    }
+    get href() {
+      return this.url;
+    }
+  };
+  var DocumentBackend = class extends GenericBackend {
+    get endpoint() {
+      return "/api/envelopes";
+    }
+    buildBody() {
+      return JSON.stringify({
+        envelope: {
+          signer: this.signer,
+          contents: this.contents
+        }
       });
-      label.append(checkbox);
-      const agree = document.createTextNode(this.constructor.texts[this.#text]);
-      label.append(agree);
-      const links = this.buildEntries(this.#contents);
-      switch (links.length) {
-        default:
-          links.slice(0, -2).forEach((link) => {
-            const connector = document.createTextNode(", ");
-            label.append(link);
-            label.append(connector);
-          });
-        case 2:
-          links.slice(-2, -1).forEach((link) => {
-            const connector = document.createTextNode(" e ");
-            label.append(link);
-            label.append(connector);
-          });
-        case 1:
-          links.slice(-1).forEach((link) => {
-            label.append(link);
-          });
-      }
-      return label;
-    };
-    #mountList = () => {
-      const div = document.createElement("div");
-      const ul = document.createElement("ul");
-      const links = this.buildEntries(this.#contents);
-      links.forEach((link) => {
-        const li = document.createElement("li");
-        li.append(link);
-        ul.append(li);
+    }
+    // Add document to be signed
+    // @param {string} name - text to display at UI
+    // @param {string} url - URL to download
+    // @param {string[]} tags - Tags to add to a document
+    addDocument(name, url, tags) {
+      this.contents.push(new Document(name, url, tags));
+    }
+  };
+  var Reference = class {
+    constructor(name, key) {
+      this.name = name;
+      this.key = key;
+    }
+    get href() {
+      return `/api/contents/${this.key}/preview`;
+    }
+  };
+  var ReferenceBackend = class extends GenericBackend {
+    get endpoint() {
+      return "/api/signatures";
+    }
+    buildBody() {
+      return JSON.stringify({
+        signature: {
+          signer: this.signer,
+          contents: this.contents
+        }
       });
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = this.#checked;
-      checkbox.addEventListener("change", (ev) => {
-        this.#agreed = ev.target.checked;
-        this.toggle(ev.target.checked);
-      });
-      label.append(checkbox);
-      const agree = document.createTextNode("Eu concordo com os documentos acima");
-      label.append(agree);
-      div.append(ul, label);
-      return div;
-    };
-    buildLink() {
-      throw "Need to be implemented";
+    }
+    addReference(name, key) {
+      this.contents.push(new Reference(name, key));
     }
   };
 
   // src/signer.js
-  var Signer = class extends base_default {
+  var Signer = class {
+    signer = null;
+    checked = false;
+    text = "agree";
+    format = "auto";
+    base = "https://signer.fa2s.com.br";
+    #plugins = [];
+    #backend = null;
+    #wrapper = null;
     constructor(api_key) {
-      super(api_key);
+      if (!api_key)
+        throw "Need an API KEY";
+      this.api_key = api_key;
     }
-    get url() {
-      return new URL("/api/envelopes", this.base);
+    set set(signer) {
+      this.signer = signer;
     }
-    buildEntries(contents) {
-      return contents.map(({ name, url }) => this.buildEntry(name, url));
+    addDocument({ name, url, tags = [] }) {
+      if (!this.#backend)
+        this.#backend = new DocumentBackend(this);
+      if (this.#backend.addDocument)
+        this.#backend.addDocument(name, url, tags);
+      else
+        throw "You can add only documents";
     }
-    buildEntry(name, url) {
-      const link = document.createElement("a");
-      link.text = name;
-      link.href = url;
-      link.target = "_blank";
-      return link;
+    addReference({ name, key }) {
+      if (!this.#backend)
+        this.#backend = new ReferenceBackend(this);
+      if (this.#backend.addReference)
+        this.#backend.addReference(name, key);
+      else
+        throw "You can add only references";
     }
-    buildPayload(signer, contents) {
-      return JSON.stringify({
-        envelope: {
-          signer,
-          contents
-        }
-      });
+    addPlugin(plugin) {
+      this.#plugins.push(plugin);
+    }
+    mount(container) {
+      if (!this.#backend)
+        throw "You must add at least one contents";
+      this.#wrapper = new Wrapper(container);
+      const renderer = new renderers_default[this.format](this.#backend.contents);
+      renderer.text = this.text;
+      renderer.checked = this.checked;
+      this.#wrapper.push(renderer);
+      this.#plugins.forEach((plugin) => this.#wrapper.push(plugin));
+      this.#wrapper.mount();
+    }
+    unmount() {
+      this.#wrapper.unmount();
+    }
+    async sign() {
+      if (!this.#wrapper.ready)
+        throw new Error("Trying to force agreement");
+      await Promise.all(this.#plugins.map((plugin) => plugin.sign(this.#backend)));
+      return await this.#backend.sign();
     }
   };
   globalThis.Signer = Signer;

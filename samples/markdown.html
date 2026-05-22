@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lorem Ipsum</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+
+    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/signer.dev.js"></script>
+    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/markdown_contract.dev.js"></script>
+  </head>
+  <body>
+    <h1>Lorem ipsum</h1>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus odio est, congue et leo mattis, convallis placerat nisl. Etiam ornare imperdiet ante, et consequat ante aliquam at. Aliquam dapibus lectus ex, nec finibus quam vestibulum eu. Curabitur tempor ac augue a tempus. Phasellus volutpat sodales magna vitae sollicitudin. Pellentesque convallis lorem eu nibh hendrerit ornare. Proin quis erat ac mauris elementum elementum. Etiam quis pretium lectus.
+    </p>
+    <p>
+    Sed nec dictum turpis, vitae faucibus libero. Morbi imperdiet urna enim, quis semper urna volutpat sit amet. Nulla congue fringilla purus non commodo. Pellentesque vitae leo eu quam imperdiet blandit blandit in lectus. Fusce nulla eros, condimentum in ultrices et, tincidunt in turpis. Integer maximus tempus pharetra. Nullam et tempus turpis, sed vulputate metus. Etiam odio ligula, iaculis non est vitae, dignissim condimentum ex. Fusce augue magna, sodales non metus ac, sagittis viverra arcu. Aliquam et urna a elit consequat laoreet. Donec mauris nulla, iaculis sit amet arcu vel, euismod interdum elit. Aenean mattis leo ac dignissim sodales. Mauris quis pulvinar eros. Proin dictum pretium enim. Nam interdum consectetur tellus mollis euismod.
+    </p>
+    <p>
+Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
+    </p>
+
+    <div id="contract" style="display: none;">
+# CONTRATO DE PRESTAÇÃO DE SERVIÇOS
+
+**Entre as partes abaixo identificadas:**
+
+**Contratante:**  
+Bom dia {{name}}  
+
+Escreva seu nome aqui {{input "name" placeholder="seu nome aqui" }}  
+
+
+Nome: {{input "NOME" placeholder="Insira seu NOME"}}  
+CPF: {{input "CNPJ" placeholder="Insira seu CNPJ"}}  
+Endereço: Rua Exemplo, 123 - São Paulo/SP  
+Email: joao@email.com  
+
+**Contratado:**  
+Nome: Maria Oliveira  
+CPF: 987.654.321-00  
+Endereço: Av. Demonstração, 456 - Rio de Janeiro/RJ  
+Email: maria@email.com  
+
+---
+
+## CLÁUSULA 1 - OBJETO
+
+O presente contrato tem como objeto a prestação dos seguintes serviços pelo CONTRATADO:
+
+- Desenvolvimento de site institucional;
+- Hospedagem e manutenção por 6 meses.
+
+{{checkbox "Eu concordo com a cláusula acima"}}
+
+
+---
+
+## CLÁUSULA 2 - PRAZO
+
+O prazo para a entrega do serviço será de 30 (trinta) dias corridos, contados a partir da assinatura deste contrato.
+
+{{#select "amount"}}
+  {{#option "vista"}}Opção 1{{/option}}
+  {{#option "2x"}}Opção 2{{/option}}
+  {{#option "3x"}}Opção 3{{/option}}
+{{/select}}
+
+{{#radio "gender:male"}}
+Pagamento à vista
+{{/radio}} 
+
+
+{{#radio "gender:female"}}
+50% (R$ 1.500,00) no início do projeto; - 50% (R$ 1.500,00) na entrega final do site.
+{{/radio}} 
+
+---
+
+## CLÁUSULA 3 - VALOR E FORMA DE PAGAMENTO
+
+O valor total do serviço será de **R$ 3.000,00 (três mil reais)**, pagos da seguinte forma:
+
+- 50% (R$ 1.500,00) no início do projeto;
+- 50% (R$ 1.500,00) na entrega final do site.
+
+---
+
+## CLÁUSULA 4 - OBRIGAÇÕES DAS PARTES
+
+**Do CONTRATADO:**
+
+- Executar os serviços com qualidade e dentro do prazo;
+- Fornecer suporte técnico durante o período de manutenção.
+
+**Do CONTRATANTE:**
+
+- Fornecer as informações e materiais necessários para a execução do projeto;
+- Efetuar os pagamentos conforme acordado.
+
+---
+
+## CLÁUSULA 5 - RESCISÃO
+
+O contrato poderá ser rescindido por qualquer das partes, mediante notificação por escrito com antecedência mínima de 7 dias, sem prejuízo das obrigações já assumidas.
+
+---
+
+## CLÁUSULA 6 - FORO
+
+Para dirimir quaisquer dúvidas oriundas deste contrato, as partes elegem o foro da comarca de São Paulo/SP.
+
+---
+
+**E por estarem de acordo, assinam o presente contrato:**
+
+São Paulo, ___ de ____________ de 20__.
+
+**Contratante:**  
+\_____________________________  
+João da Silva
+
+**Contratado:**  
+\_____________________________  
+Maria Oliveira
+    </div>
+
+    <div id="signer"></div>
+    <input id="next" type="button" value="Eu concordo" disabled />
+
+    <p id="warning" style="text-align: center; background: yellow; display: none;">
+      O componente de assinatura não parece devidamente configurado.
+    </p>
+
+    <p>
+      Clique <a href="./config.html">aqui</a> para ser redirecionado ao assistente de configuração.
+    </p>
+
+    <script>
+      const params = new URLSearchParams(document.location.search);
+      const apiKey = params.get("apiKey");
+      const mode = params.get("mode");
+      const base = params.get("base");
+
+      if (!apiKey) {
+        const warning = document.querySelector("#warning");
+        warning.style.display = "block";
+      }
+
+      // Simple Signer config starts here
+      const signer = new Signer(apiKey);
+
+      // Options: development, staging, production. Default: production
+      if (mode) {
+        signer.mode = mode;
+      }
+
+      if (base) {
+        signer.base = base;
+      }
+
+      // Options: agree, accept, read_and_accept. Default: agree
+      signer.text = "agree";
+
+      // Set signer data. Right now it only accepts name and CPF
+      signer.set = {
+        name:  "Daniel Gaboardi Libanori",
+        documents: [
+          {
+            name: "cpf",
+            value: "301.663.808-81"
+          },
+        ],
+      };
+
+      signer.addPlugin(new MarkdownContract({
+          inline: document.querySelector("#contract").textContent
+      }));
+
+      signer.inline = document.querySelector("#contract").textContent;
+      signer.react = (ev) => {
+        const data = ev.currentTarget.querySelectorAll("input, select")
+
+        for (input of data) {
+          switch (input.type) {
+            case "radio":
+              if (input.checked)
+                console.log(`Gender: ${input.value}`);
+              break;
+            default:
+              console.log(`${input.name}: ${input.value}`);
+              break;
+          }
+        }
+      };
+
+      // Set documents to be signed. It needs an array of:
+      // name: string [required]
+      // url: where to download file [required]
+      // tag: array of strings to filter later [optional]
+      signer.contents  = [
+        {
+          name: "LGPD",
+          url: "https://pdfobject.com/pdf/sample.pdf",
+          tags: [ "lgpd", "2025" ],
+        },
+        {
+          name: "Termo de Uso",
+          url: "https://www.buds.com.ua/images/Lorem_ipsum.pdf",
+          tags: [ "tou", "2025" ],
+        },
+        {
+          name: "Contrato de Prestação de Serviço",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          tags: [ "contract", "2025" ],
+        },
+      ];
+
+      // Where to mount. Expects a CSS selector
+      signer.mount("#signer");
+
+      const next = document.querySelector("#next");
+      // Function to be called when user click on agree checkbox
+      signer.toggle = (agreed) => {
+        next.disabled = !agreed;
+      }
+
+      next.addEventListener("click", (ev) => {
+        ev.preventDefault();
+
+        next.disabled = true;
+
+        // Function to be called when you want to send signature
+        signer.agree()
+          .then((response) => {
+            // Data from signer server to be saved
+            response.json().then((data) => {
+              alert(`Chave do envelope gerado:  ${data.envelope.key}`);
+            });
+          })
+          .catch((response) => {
+            // When something goes wrong
+            console.log("failed");
+          })
+          .finally(() => {
+            // Called every time
+            console.log("always");
+
+            document.querySelector("#signer").remove();
+            next.remove();
+          });
+      });
+    </script>
+  </body>
+</html>

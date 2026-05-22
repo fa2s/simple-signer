@@ -3,7 +3,15 @@
   <head>
     <title>Lorem Ipsum</title>
     <meta charset="UTF-8">
-    <script src="https://cdn.statically.io/gh/fa2s/simple-signer/main/dist/multisigner.dev.js"></script>
+
+    <script type="text/javascript"
+            src="https://cdn.lacunasoftware.com/libs/web-pki/lacuna-web-pki-2.16.5.min.js"
+            integrity="sha256-4CwnsE/1P/zm4eAcIIPTyPts1gFxG16ZCQDTMMxOtIE="
+            crossorigin="anonymous"></script>
+
+    <script src="/dist/signer.js"></script>
+    <script src="/dist/plugins/icp_signer.js"></script>
+
   </head>
   <body>
     <h1>Lorem ipsum</h1>
@@ -17,11 +25,7 @@
 Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat ac elit. Nulla sit amet purus quis purus pellentesque efficitur. Sed ut risus vehicula, dapibus eros sed, posuere elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque molestie nibh in ornare posuere. Aenean quis commodo ante. Duis bibendum venenatis nulla at pulvinar!
     </p>
 
-    <div id="signer">
-      <style>
-        ul { background: lightgray }
-      </style>
-    </div>
+    <div id="signer"></div>
     <input id="next" type="button" value="Eu concordo" disabled />
 
     <p id="warning" style="text-align: center; background: yellow; display: none;">
@@ -44,7 +48,7 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       }
 
       // Simple Signer config starts here
-      const signer = new Multisigner(apiKey);
+      const signer = new Signer(apiKey);
 
       // Options: development, staging, production. Default: production
       if (mode) {
@@ -56,56 +60,37 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       }
 
       // Options: agree, accept, read_and_accept. Default: agree
-      signer.text = "accept";
+      signer.text = "agree";
 
-      // Set signer data. Right now it only accepts name and CPF
-      signer.set = {
-        name:  "Diogo Lima da Silva Sauro",
-        documents: [
-          {
-            name: "cpf",
-            value: "300.444.999-01"
-          },
-        ],
-        tags: [ "saler", "2025" ],
-      };
+      signer.addPlugin(new ICPSigner({
+          endpoints: {
+              start: "http://192.168.64.3:3000/start",
+              complete: "http://192.168.64.3:3000/complete",
+          }
+      }));
 
       // Set documents to be signed. It needs an array of:
       // name: string [required]
-      // key: content key at simple simples [required]
-      signer.contents = [
+      // url: where to download file [required]
+      // tag: array of strings to filter later [optional]
+      signer.contents  = [
         {
-          name: "Contrato de Prestação de Serviço Nº 001",
-          key: "25783eb5-0538-414b-87b4-684afc5f3fd9",
+          name: "LGPD",
+          url: "https://pdfobject.com/pdf/sample.pdf",
+          tags: [ "lgpd", "2025" ],
         },
         {
-          name: "Termo de Uso Nº 001",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
+          name: "Termo de Uso",
+          url: "https://www.buds.com.ua/images/Lorem_ipsum.pdf",
+          tags: [ "tou", "2025" ],
         },
         {
-          name: "Termo de Uso Nº 002",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 003",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 004",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 005",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 006",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
->>>>>>> main
+          name: "Contrato de Prestação de Serviço",
+          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          tags: [ "contract", "2025" ],
         },
       ];
 
-      signer.format = "list";
       // Where to mount. Expects a CSS selector
       signer.mount("#signer");
 
@@ -123,9 +108,10 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
         // Function to be called when you want to send signature
         signer.agree()
           .then((response) => {
-            console.log("success");
             // Data from signer server to be saved
-            response.json().then((data) => console.log(data));
+            response.json().then((data) => {
+              alert(`Chave do envelope gerado:  ${data.envelope.key}`);
+            });
           })
           .catch((response) => {
             // When something goes wrong
@@ -134,7 +120,6 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
           .finally(() => {
             // Called every time
             console.log("always");
-            next.disabled = false;
 
             document.querySelector("#signer").remove();
             next.remove();

@@ -16,7 +16,7 @@ servers:
           - https
         default: http
       port:
-        default: 3000
+        default: "3000"
 security:
   - ApiKeyAuth: []
 paths:
@@ -25,7 +25,7 @@ paths:
       summary: Mostra conta autenticada
       description: Útil para descobrir a quem o token de autenticação pertence.
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
@@ -38,7 +38,7 @@ paths:
       summary: Lista envelopes
       description: Retorna todos os envelopes da conta. **Não utilizar em production**
       responses:
-        200:
+        "200":
           description: Retorna um array de envelopes no índice `envelopes`
           content:
             application/json:
@@ -58,7 +58,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/key'
       responses:
-        200:
+        "200":
           description: Retorna um envelope no índice `envelope`
           content:
             application/json:
@@ -67,7 +67,7 @@ paths:
                 properties:
                   envelope:
                     $ref: '#/components/schemas/envelope'
-        404:
+        "404":
           description: Envelope não encontrado na conta
       tags:
         - envelopes
@@ -78,7 +78,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/key'
       responses:
-        202:
+        "202":
           description: O envelope foi marcado para ser finalizado com sucesso.
           content:
             application/json:
@@ -87,9 +87,9 @@ paths:
                 properties:
                   envelope:
                     $ref: '#/components/schemas/envelope'
-        404:
+        "404":
           description: Envelope não encontrado na conta
-        422:
+        "422":
           description: A finalização do envelope falhou. Consultar corpo da resposta para obter mais detalhes.
       tags:
         - envelopes
@@ -98,7 +98,7 @@ paths:
       summary: Lista webhooks
       description: Retorna todos os _webhooks_ da conta.
       responses:
-        200:
+        "200":
           description: Retorna um _array_ de _webhooks_ no índice `webhooks`.
           content:
             application/json:
@@ -120,7 +120,7 @@ paths:
             schema:
               $ref: '#/components/schemas/new-webhook'
       responses:
-        201:
+        "201":
           description: Webhook criado com sucesso
           content:
             application/json:
@@ -129,7 +129,7 @@ paths:
                 properties:
                   webhook:
                     $ref: '#/components/schemas/webhook'
-        422:
+        "422":
           description: Criação de webhook falhou. Consultar corpo da resposta para obter mais detalhes.
       tags:
         - webhooks
@@ -140,11 +140,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/key'
       responses:
-        204:
+        "204":
           description: Webhook deletado.
-        404:
+        "404":
           description: Webhook não encontrado na conta.
-        422:
+        "422":
           description: Deleção de webhook falhou. Consultar corpo da resposta para obter mais detalhes.
       tags:
         - webhooks

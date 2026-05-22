@@ -29,8 +29,9 @@
       </label>
       <br />
 
-      <input type="submit" value="Simple" disabled />
-      <input type="submit" value="Multi" disabled />
+      <input type="submit" value="simple" disabled />
+      <input type="submit" value="multi" disabled />
+      <input type="submit" value="markdown" disabled />
     </form>
 
     <script>
@@ -63,12 +64,7 @@
           if (value) params.append(id, value);
         });
 
-        let page;
-        if (ev.submitter.value == "Simple")
-          page = "simple.html"
-        else
-          page = "multi.html";
-
+        const page = `${ev.submitter.value}.html`;
         const url = new URL(page, document.location);
         url.search = params;
 

@@ -18,10 +18,15 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
     </p>
 
     <div id="signer">
-      <style>
-        ul { background: lightgray }
-      </style>
+        <template>
+            <style>
+                li {
+                    list-style: square;
+                }
+            </style>
+        </template>
     </div>
+
     <input id="next" type="button" value="Eu concordo" disabled />
 
     <p id="warning" style="text-align: center; background: yellow; display: none;">
@@ -46,14 +51,8 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       // Simple Signer config starts here
       const signer = new Signer(apiKey);
 
-      // Options: development, staging, production. Default: production
-      if (mode) {
-        signer.mode = mode;
-      }
-
-      if (base) {
+      if (base)
         signer.base = base;
-      }
 
       // Options: agree, accept, read_and_accept. Default: agree
       signer.text = "agree";
@@ -64,67 +63,68 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
         documents: [
           {
             name: "cpf",
-            value: "829.462.560-49",
+            value: "097.074.950-30"
           },
         ],
-        tags: [ "customer", "2025" ],
+        tags: [ "customer", "plan-1" ],
       };
 
-      // Set documents to be signed. It needs an array of:
+      // Set documents to be signed.
       // name: string [required]
       // url: where to download file [required]
       // tag: array of strings to filter later [optional]
-      signer.contents  = [
-        {
+      signer.addDocument({
           name: "LGPD",
-          url: "https://pdfobject.com/pdf/sample.pdf",
-          tags: [ "lgpd", "2025" ],
-        },
-        {
-          name: "Termo de Uso",
-          url: "https://www.buds.com.ua/images/Lorem_ipsum.pdf",
-          tags: [ "tou", "2025" ],
-        },
-        {
-          name: "Contrato de Prestação de Serviço",
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-          tags: [ "contract", "2025" ],
-        },
-      ];
+          url: "https://www.auburncc.org/Downloads/Sample%20PDF.pdf",
+          tags: [ "lgpd", "2025" ]
+      });
 
-      // Where to mount. Expects a CSS selector
-      signer.mount("#signer");
+      signer.addDocument({
+          name: "Termos de Uso",
+          url: "https://pdfobject.com/pdf/sample.pdf",
+          tags: [ "tou", "2025" ]
+      });
+
+      // Attach events handlers to container
+      const container = document.querySelector("#signer");
+      container.addEventListener("mount", (ev) => {
+          console.log("Signer mounted");
+      });
+
+      container.addEventListener("unmount", (ev) => {
+          console.log("Signer unmounted");
+      });
+
+      // Mount expects an container as an element
+      signer.mount(container);
 
       const next = document.querySelector("#next");
-      // Function to be called when user click on agree checkbox
-      signer.toggle = (agreed) => {
-        next.disabled = !agreed;
-      }
+      container.addEventListener("change", (ev) => {
+          console.log("Signer changed");
+          next.disabled = !ev.source.checked;
+      });
 
       next.addEventListener("click", (ev) => {
         ev.preventDefault();
 
-        next.disabled = true;
+        (async () => {
+            try {
+                next.disabled = true;
 
-        // Function to be called when you want to send signature
-        signer.agree()
-          .then((response) => {
-            // Data from signer server to be saved
-            response.json().then((data) => {
-              alert(`Chave do envelope gerado:  ${data.envelope.key}`);
-            });
-          })
-          .catch((response) => {
-            // When something goes wrong
-            console.log("failed");
-          })
-          .finally(() => {
-            // Called every time
-            console.log("always");
+                // Function to be called when you want to send signature
+                const response = await signer.sign();
+                // Data from signer server to be saved
+                const json = await response.json();
 
-            document.querySelector("#signer").remove();
-            next.remove();
-          });
+                // Here goes your code
+                alert(`Chave do envelope gerado:  ${json.envelope.key}`);
+            } catch ({ name, message, cause }) {
+                console.log(`Failed: ${message} (${name})`);
+            } finally {
+                signer.unmount();
+                next.remove();
+            }
+        })();
       });
     </script>
   </body>

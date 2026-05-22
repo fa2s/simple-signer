@@ -303,7 +303,7 @@
     checked = false;
     text = "agree";
     format = "auto";
-    base = "https://signer.fa2s.com.br";
+    base = "https://production.agree.clicksign.com";
     #plugins = [];
     #backend = null;
     #wrapper = null;

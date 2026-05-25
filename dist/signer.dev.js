@@ -2854,7 +2854,7 @@
   };
   var LineRenderer = class extends Base {
     static texts = {
-      agree: "Concordo com ",
+      agree: "Eu concordo com ",
       accept: "Eu aceito ",
       read_and_accept: "Li e aceito "
     };
@@ -2868,13 +2868,12 @@
       label.append(...line);
       const check = document.createElement("span");
       check.innerHTML = "<sup>\u24D8<sup>";
-      label.append(check);
+      root.append(label);
+      root.append(check);
       const tooltip = document.createElement("div");
       const p_info = document.createElement("p");
       p_info.textContent = "Minhas informa\xE7\xF5es:";
-      tooltip.append(p_info);
       const ul_info = document.createElement("ul");
-      tooltip.append(ul_info);
       const name = document.createElement("li");
       name.textContent = `Nome: ${this.signer.name}`;
       ul_info.append(name);
@@ -2883,17 +2882,19 @@
         li.textContent = `${name2.toUpperCase()}: ${value}`;
         ul_info.append(li);
       });
+      tooltip.append(p_info);
+      tooltip.append(ul_info);
       if (this.signer.extras?.length > 0) {
         const p_meta = document.createElement("p");
         p_meta.textContent = "Metadados adicionais :";
-        tooltip.append(p_meta);
         const ul_meta = document.createElement("ul");
-        tooltip.append(ul_meta);
         this.signer.extras.forEach(({ name: name2, value }) => {
           const li = document.createElement("li");
           li.textContent = `${name2}: ${value}`;
           ul_meta.append(li);
         });
+        tooltip.append(p_meta);
+        tooltip.append(ul_meta);
       }
       tippy_esm_default(check, {
         content: tooltip.innerHTML,
@@ -2901,7 +2902,6 @@
         interactive: true,
         allowHTML: true
       });
-      root.append(label);
     }
     // Warning: I couldn't find easier way to do this. It is not an usual code
     // but it works.

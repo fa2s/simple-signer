@@ -2867,7 +2867,7 @@
       label.append(agree);
       label.append(...line);
       const check = document.createElement("span");
-      check.innerHTML = "<sup>\u24D8<sup>";
+      check.innerHTML = "<sub>&nbsp;\u24D8<sup>";
       root.append(label);
       root.append(check);
       const tooltip = document.createElement("div");
@@ -2899,6 +2899,7 @@
       tippy_esm_default(check, {
         content: tooltip.innerHTML,
         placement: "top",
+        trigger: "mouseenter focus click",
         interactive: true,
         allowHTML: true
       });

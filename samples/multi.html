@@ -44,7 +44,7 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       }
 
       // Simple Signer config starts here
-      const signer = new Multisigner(apiKey);
+      const signer = new Signer(apiKey);
 
       // Options: development, staging, production. Default: production
       if (mode) {
@@ -73,72 +73,63 @@ Donec eget commodo justo. Phasellus nulla sem, auctor non commodo eget, volutpat
       // Set documents to be signed. It needs an array of:
       // name: string [required]
       // key: content key at simple simples [required]
-      signer.contents = [
-        {
+      signer.addReference({
           name: "Contrato de Prestação de Serviço Nº 001",
           key: "25783eb5-0538-414b-87b4-684afc5f3fd9",
-        },
-        {
+      });
+
+      signer.addReference({
           name: "Termo de Uso Nº 001",
           key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
+      });
+
+      signer.addReference({
           name: "Termo de Uso Nº 002",
           key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 003",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 004",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 005",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
-        },
-        {
-          name: "Termo de Uso Nº 006",
-          key: "ffe6e132-81d5-4503-a56e-e2219d0cef95",
->>>>>>> main
-        },
-      ];
+      });
 
       signer.format = "list";
       // Where to mount. Expects a CSS selector
-      signer.mount("#signer");
+
+      const container = document.querySelector("#signer");
+      container.addEventListener("mount", (ev) => {
+          console.log("Signer mounted");
+      });
+
+      container.addEventListener("unmount", (ev) => {
+          console.log("Signer unmounted");
+      });
+
+      // Mount expects an container as an element
+      signer.mount(container);
 
       const next = document.querySelector("#next");
-      // Function to be called when user click on agree checkbox
-      signer.toggle = (agreed) => {
-        next.disabled = !agreed;
-      }
+      container.addEventListener("change", (ev) => {
+          console.log("Signer changed");
+          next.disabled = !ev.source.checked;
+      });
 
       next.addEventListener("click", (ev) => {
         ev.preventDefault();
 
-        next.disabled = true;
+        (async () => {
+            try {
+                next.disabled = true;
 
-        // Function to be called when you want to send signature
-        signer.agree()
-          .then((response) => {
-            console.log("success");
-            // Data from signer server to be saved
-            response.json().then((data) => console.log(data));
-          })
-          .catch((response) => {
-            // When something goes wrong
-            console.log("failed");
-          })
-          .finally(() => {
-            // Called every time
-            console.log("always");
-            next.disabled = false;
+                // Function to be called when you want to send signature
+                const response = await signer.sign();
+                // Data from signer server to be saved
+                const json = await response.json();
 
-            document.querySelector("#signer").remove();
-            next.remove();
-          });
+                // Here goes your code
+                alert(`Chave do envelope gerado:  ${json.envelope.key}`);
+            } catch ({ name, message, cause }) {
+                console.log(`Failed: ${message} (${name})`);
+            } finally {
+                signer.unmount();
+                next.remove();
+            }
+        })();
       });
     </script>
   </body>
